@@ -4,6 +4,7 @@ from encode import *
 from threading import Thread
 from mediapipe.python.solutions import face_mesh as fm, drawing_styles as ds, drawing_utils as du
 import cv2
+import random
 
 class ClientData:
     def __init__(self):
@@ -47,8 +48,13 @@ def receiveTCP(sock : socket.socket):
 
                 #
                 ecdtcp = None
-                if dcdtcp.type == DecodeType.Image.value:
-                    dcdtcp = DcdImage(dcdtcp)
+                
+                print(dcdtcp.type)
+                if dcdtcp.type == DecodeType.Login.value:
+                    dcdtcp = DcdLogin(dcdtcp)
+                    ecdtcp = EcdLoginResult(random.randint(0,2))
+                elif dcdtcp.type == DecodeType.DrivingImage.value:
+                    dcdtcp = DcdDrivingImage(dcdtcp)
 
                     image = cv2.cvtColor(dcdtcp.image, cv2.COLOR_BGR2RGB)
 
@@ -74,7 +80,7 @@ def receiveTCP(sock : socket.socket):
                         )
 
                     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-                    ecdtcp = EcdImage(image)
+                    ecdtcp = EcdDrivingResult(image)
 
                 #
                 if not ecdtcp is None:

@@ -2,7 +2,8 @@ from enum import Enum
 import numpy as np
 
 class EncodeType(Enum):
-    Image = 0
+    LoginResult = 0
+    DrivingResult = 1
 
 class Encode:
     def __init__(self):
@@ -34,13 +35,19 @@ class EncodeTCP(Encode):
     def totalSizeByte(self) -> bytes:
         return (len(self.headerBytes) + len(self.dataBytes)).to_bytes(4, "little")
 
-class EcdImage(EncodeTCP):
+class EcdLoginResult(EncodeTCP):
+    def __init__(self, type : int):
+        super().__init__()
+        self.dataBytesList.append(type.to_bytes(4, "little"))
+        self.packaging(EncodeType.LoginResult.value)
+
+class EcdDrivingResult(EncodeTCP):
     def __init__(self, img : np.ndarray):
         super().__init__()
         self.dataBytesList.append(img.shape[0].to_bytes(4, "little"))
         self.dataBytesList.append(img.shape[1].to_bytes(4, "little"))
         self.dataBytesList.append(img.tobytes())
-        self.packaging(EncodeType.Image.value)
+        self.packaging(EncodeType.DrivingResult.value)
 
 
 

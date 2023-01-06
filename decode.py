@@ -2,7 +2,8 @@ from enum import Enum
 import numpy as np
 
 class DecodeType(Enum):
-    Image = 0
+    Login = 0
+    DrivingImage = 1
 
 class Decode:
     def __init__(self):
@@ -34,6 +35,20 @@ class DcdImage:
         self.rows : int = int.from_bytes(dcdtcp.dataBytesList[0], "little")
         self.cols : int = int.from_bytes(dcdtcp.dataBytesList[1], "little")
         self.image : np.ndarray = np.ndarray(shape=(self.rows, self.cols, 3), buffer=dcdtcp.dataBytesList[2], dtype=np.uint8)
+
+class DcdLogin(DcdImage):
+    def __init__(self, dcdtcp : DecodeTCP):
+        super().__init__(dcdtcp)
+
+class DcdDrivingImage(DcdImage):
+    def __init__(self, dcdtcp : DecodeTCP):
+        super().__init__(dcdtcp)
+
+# class DcdImage:
+#     def __init__(self, dcdtcp : DecodeTCP):
+#         self.rows : int = int.from_bytes(dcdtcp.dataBytesList[0], "little")
+#         self.cols : int = int.from_bytes(dcdtcp.dataBytesList[1], "little")
+#         self.image : np.ndarray = np.ndarray(shape=(self.rows, self.cols, 3), buffer=dcdtcp.dataBytesList[2], dtype=np.uint8)
 
 # class DcdChat:
 #     def __init__(self, dcdtcp : DecodeTCP):
