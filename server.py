@@ -5,6 +5,26 @@ from threading import Thread
 from mediapipe.python.solutions import face_mesh as fm, drawing_styles as ds, drawing_utils as du
 import cv2
 import random
+import face_recognition
+import numpy as np
+import os
+
+#등록된 사용자의 사진을 불러오고 encoding하는 부분
+path = 'pictures'
+images = [] #시각화된 이미지가 담긴다 _[[83,105,130],[96,113,132]]이런식으로!
+mylist = os.listdir(path) #폴더 내 이미지 목록을 들고 옴
+for cls in mylist:
+    currentImg = cv2.imread(f'{path}/{cls}')
+    images.append(currentImg)
+
+imgsEncodeList = []
+for img in images:
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #라이브러리는 RGB로 이해하므로 변환과정 필요
+    encode = face_recognition.face_encodings(img)[0] #사진의 모든 좌표값이 나타남
+    imgsEncodeList.append(encode)
+
+print("Encoding completes!")
+
 
 class ClientData:
     def __init__(self):
@@ -52,7 +72,33 @@ def receiveTCP(sock : socket.socket):
                 print(dcdtcp.type)
                 if dcdtcp.type == DecodeType.Login.value:
                     dcdtcp = DcdLogin(dcdtcp)
-                    ecdtcp = EcdLoginResult(random.randint(0,2))
+                    
+                    #가히 _ 사용자의 페이스로그인을 시도하는 부분
+                    driverImg = cv2.cvtColor(dcdtcp.image, cv2.COLOR_BGR2RGB)
+                    driverImgEncode = face_recognition.face_encodings(driverImg)[0]
+
+                    if len(driverImgEncode) == 0:
+                        ecdtcp = EcdLoginResult(0)
+                    else:
+                        faces_match = face_recognition.compare_faces(imgsEncodeList, driverImgEncode)
+                        faces_faceDis = face_recognition.face_distance(imgsEncodeList, driverImgEncode)
+                        matchIndex = np.argmin(faces_faceDis)
+
+                        #로그인 결과 출력
+                        loginSuccess = 1
+                        if faces_match[matchIndex] and faces_faceDis[matchIndex] <= 0.3:
+                            print("로그인 성공")
+                            ecdtcp = EcdLoginResult(1)
+                            loginSuccess = 0
+
+                        if loginSuccess != 0:
+                            print("등록된 얼굴이 아닙니다.")
+                            imgsEncodeList.append(driverImgEncode)
+                            ecdtcp = EcdLoginResult(2)
+                            
+                            # imgsEncodeList.append(driverImgEncode)
+
+                        # ecdtcp = EcdLoginResult(random.randint(0,2))
                 elif dcdtcp.type == DecodeType.DrivingImage.value:
                     dcdtcp = DcdDrivingImage(dcdtcp)
 
