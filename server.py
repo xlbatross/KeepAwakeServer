@@ -90,7 +90,7 @@ def receiveTCP(sock : socket.socket):
                             imgsEncodeList.append(driverImgEncode)
                             userNum = len(imgsEncodeList)
                             driverImg = cv2.cvtColor(driverImg, cv2.COLOR_RGB2BGR)
-                            cv2.imwrite(f"C:\KeepAwakeServer\pictures\{userNum}.jpg",driverImg)
+                            cv2.imwrite(f"./pictures/{userNum}.jpg",driverImg)
                             ecdtcp = EcdLoginResult(2)
                     #프로그램에 등록된 사용자가 1명 이상일 때
                     else:
@@ -114,7 +114,7 @@ def receiveTCP(sock : socket.socket):
                                 imgsEncodeList.append(driverImgEncode)
                                 userNum = len(imgsEncodeList)
                                 driverImg = cv2.cvtColor(driverImg, cv2.COLOR_RGB2BGR)
-                                cv2.imwrite(f"C:\KeepAwakeServer\pictures\{userNum}.jpg",driverImg)
+                                cv2.imwrite(f"./pictures/{userNum}.jpg",driverImg)
                                 ecdtcp = EcdLoginResult(2)
                     
 
