@@ -17,11 +17,13 @@ for cls in mylist:
     currentImg = cv2.imread(f'{path}/{cls}')
     images.append(currentImg)
 
-imgsEncodeList = []
+imgsEncodeList = [] #사용자 얼굴 인코딩한 값 담아놓는 리스트 
+
 for img in images:
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #라이브러리는 RGB로 이해하므로 변환과정 필요
     encode = face_recognition.face_encodings(img)[0] #사진의 모든 좌표값이 나타남
     imgsEncodeList.append(encode)
+
 
 print("Encoding completes!")
 
@@ -75,30 +77,47 @@ def receiveTCP(sock : socket.socket):
                     
                     #가히 _ 사용자의 페이스로그인을 시도하는 부분
                     driverImg = cv2.cvtColor(dcdtcp.image, cv2.COLOR_BGR2RGB)
-                    driverImgEncode = face_recognition.face_encodings(driverImg)[0]
-
-                    if len(driverImgEncode) == 0:
-                        ecdtcp = EcdLoginResult(0)
-                    else:
-                        faces_match = face_recognition.compare_faces(imgsEncodeList, driverImgEncode)
-                        faces_faceDis = face_recognition.face_distance(imgsEncodeList, driverImgEncode)
-                        matchIndex = np.argmin(faces_faceDis)
-
-                        #로그인 결과 출력
-                        loginSuccess = 1
-                        if faces_match[matchIndex] and faces_faceDis[matchIndex] <= 0.3:
-                            print("로그인 성공")
-                            ecdtcp = EcdLoginResult(1)
-                            loginSuccess = 0
-
-                        if loginSuccess != 0:
-                            print("등록된 얼굴이 아닙니다.")
+                    driverImgEncodeList = face_recognition.face_encodings(driverImg)
+                    #이 프로그램에 등록된 사용자가 한 명도 없을 때
+                    if len(imgsEncodeList) == 0: 
+                        print("폴더 내 사용자 없음")
+                        
+                        if len(driverImgEncodeList) == 0:
+                            ecdtcp = EcdLoginResult(0)
+                        else:
+                            driverImgEncode = driverImgEncodeList[0]
+                            print("새로운 사용자 등록")
                             imgsEncodeList.append(driverImgEncode)
+                            userNum = len(imgsEncodeList)
+                            driverImg = cv2.cvtColor(driverImg, cv2.COLOR_RGB2BGR)
+                            cv2.imwrite(f"C:\KeepAwakeServer\pictures\{userNum}.jpg",driverImg)
                             ecdtcp = EcdLoginResult(2)
-                            
-                            # imgsEncodeList.append(driverImgEncode)
+                    #프로그램에 등록된 사용자가 1명 이상일 때
+                    else:
+                        if len(driverImgEncodeList) == 0:
+                            ecdtcp = EcdLoginResult(0)
+                        else:
+                            driverImgEncode = driverImgEncodeList[0]
+                            faces_match = face_recognition.compare_faces(imgsEncodeList, driverImgEncode)
+                            faces_faceDis = face_recognition.face_distance(imgsEncodeList, driverImgEncode)
+                            matchIndex = np.argmin(faces_faceDis)
 
-                        # ecdtcp = EcdLoginResult(random.randint(0,2))
+                            #로그인 결과 출력
+                            loginSuccess = 1
+                            if faces_match[matchIndex] and faces_faceDis[matchIndex] <= 0.3:
+                                print("로그인 성공")
+                                ecdtcp = EcdLoginResult(1)
+                                loginSuccess = 0
+
+                            if loginSuccess != 0:
+                                print("등록된 얼굴이 아닙니다.")
+                                imgsEncodeList.append(driverImgEncode)
+                                userNum = len(imgsEncodeList)
+                                driverImg = cv2.cvtColor(driverImg, cv2.COLOR_RGB2BGR)
+                                cv2.imwrite(f"C:\KeepAwakeServer\pictures\{userNum}.jpg",driverImg)
+                                ecdtcp = EcdLoginResult(2)
+                    
+
                 elif dcdtcp.type == DecodeType.DrivingImage.value:
                     dcdtcp = DcdDrivingImage(dcdtcp)
 
