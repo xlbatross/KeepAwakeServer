@@ -8,14 +8,20 @@ import random
 import face_recognition
 import numpy as np
 import os
+from DBclass import DB
+#가히
+import DBclass
+DB = DBclass.DB()
 
 #등록된 사용자의 사진을 불러오고 encoding하는 부분
 path = 'pictures'
 images = [] #시각화된 이미지가 담긴다 _[[83,105,130],[96,113,132]]이런식으로!
+userID = [] #[('iu','.jpg')] 이렇게 담김
 mylist = os.listdir(path) #폴더 내 이미지 목록을 들고 옴
 for cls in mylist:
     currentImg = cv2.imread(f'{path}/{cls}')
     images.append(currentImg)
+    userID.append(os.path.splitext(cls))
 
 imgsEncodeList = [] #사용자 얼굴 인코딩한 값 담아놓는 리스트 
 
@@ -26,7 +32,7 @@ for img in images:
 
 
 print("Encoding completes!")
-
+print(userID)
 
 class ClientData:
     def __init__(self):
@@ -90,7 +96,10 @@ def receiveTCP(sock : socket.socket):
                             imgsEncodeList.append(driverImgEncode)
                             userNum = len(imgsEncodeList)
                             driverImg = cv2.cvtColor(driverImg, cv2.COLOR_RGB2BGR)
-                            cv2.imwrite(f"./pictures/{userNum}.jpg",driverImg)
+                            driverImgPath = f"./pictures/{userNum}.jpg"
+                            cv2.imwrite(driverImgPath,driverImg)
+                            userID.append((f"{userNum}",'.jpg'))
+                            DB.UserInfoInsert(driverImgPath)
                             ecdtcp = EcdLoginResult(2)
                     #프로그램에 등록된 사용자가 1명 이상일 때
                     else:
@@ -104,8 +113,10 @@ def receiveTCP(sock : socket.socket):
 
                             #로그인 결과 출력
                             loginSuccess = 1
-                            if faces_match[matchIndex] and faces_faceDis[matchIndex] <= 0.3:
+                            if faces_match[matchIndex] and faces_faceDis[matchIndex] <= 0.45:
                                 print("로그인 성공")
+                                name = userID[matchIndex][0]
+                                print("운전자 id:",name)
                                 ecdtcp = EcdLoginResult(1)
                                 loginSuccess = 0
 
@@ -114,7 +125,10 @@ def receiveTCP(sock : socket.socket):
                                 imgsEncodeList.append(driverImgEncode)
                                 userNum = len(imgsEncodeList)
                                 driverImg = cv2.cvtColor(driverImg, cv2.COLOR_RGB2BGR)
-                                cv2.imwrite(f"./pictures/{userNum}.jpg",driverImg)
+                                driverImgPath = f"./pictures/{userNum}.jpg"
+                                cv2.imwrite(driverImgPath,driverImg)
+                                userID.append((f"{userNum}",'.jpg'))
+                                DB.UserInfoInsert(driverImgPath)
                                 ecdtcp = EcdLoginResult(2)
                     
 

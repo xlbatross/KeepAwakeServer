@@ -23,7 +23,7 @@ class DB:
 
     # DB Drinving Insert 메서드
 
-    def DrowsyTimeInsert(self,User ,Drowsy ,DTime):
+    def DrowsyTimeInsert(self, User ,Drowsy ,DTime):
         conn = self.Connect()
         curs = conn.cursor()
         sql = f"""INSERT INTO drive.driving (UserNumber,DrowsyCount,DrowsyTime)
@@ -35,8 +35,12 @@ class DB:
     def UserInfoInsert(self, Src):
         conn = self.Connect()
         curs = conn.cursor()
-        sql = f"""INSERT INTO drive.User(ImageSrc)
-                  VALUES('{Src}');"""
+        sql = f"""SELECT UserNumber FROM drive.user WHERE ImageSrc = "{Src}" ;"""
+        result = curs.execute(sql)
+        if result is not None:
+            conn.close
+        sql = f"""INSERT INTO drive.user (ImageSrc)
+                VALUES('{Src}');"""
         curs.execute(sql)
         conn.commit()
         conn.close()
