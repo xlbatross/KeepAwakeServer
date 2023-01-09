@@ -117,17 +117,14 @@ def receiveTCP(sock : socket.socket):
                             if faces_match[matchIndex] and faces_faceDis[matchIndex] <= 0.45:
                                 print("얼굴추측 성공")
                                 userIDnum = userID[matchIndex][0]
-                                print("운전자 id:",userIDnum)
                                 driverImgPath = f"./pictures/{userIDnum}.jpg"
                                 loginResult = DB.UserLogin(driverImgPath)
-                                if loginResult != None:
-                                    print("1111111")
+                                if loginResult != -1:
                                     ecdtcp = EcdLoginResult(1)
-                                    print("222222222")
-                                    loginSuccess = 0
-                                    print("33333333333")
-                                    
-                                    
+                                else:
+                                    ecdtcp = EcdLoginResult(0)
+                                print("운전자 id:",loginResult)
+                                
                             else:
                                 print("등록된 얼굴이 없습니다.")
                                 imgsEncodeList.append(driverImgEncode)

@@ -67,13 +67,16 @@ class DB:
                     WHERE imagesrc = '{imgPath}';"""
                     #where imagesrc like '%1%'
         curs.execute(sql)
-        rowlist = []
-        for row in curs:
-            for el in row:
-                rowlist.append(el)
+        result = curs.fetchone()
+        userNumber = -1
+        if not result is None:
+            userNumber = result[0]
+        # for row in curs:
+        #     for el in row:
+        #         rowlist.append(el)
         conn.commit()
         conn.close()
-        return rowlist
+        return userNumber
         
     # 해당유저 아이디에대한 평균DrowsyTime 찾아오는 메서드
     def avgDrowsyTime(self,usernum):
