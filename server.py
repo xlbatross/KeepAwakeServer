@@ -112,13 +112,22 @@ def receiveTCP(sock : socket.socket):
                             matchIndex = np.argmin(faces_faceDis)
 
                             #로그인 결과 출력
-                            loginSuccess = 1
+                            
                             if faces_match[matchIndex] and faces_faceDis[matchIndex] <= 0.45:
-                                print("로그인 성공")
-                                name = userID[matchIndex][0]
-                                print("운전자 id:",name)
-                                ecdtcp = EcdLoginResult(1)
-                                loginSuccess = 0
+                                print("얼굴추측 성공")
+                                userIDnum = userID[matchIndex][0]
+                                print("운전자 id:",userIDnum)
+                                driverImgPath = f"./pictures/{userIDnum}.jpg"
+                                loginResult = DB.UserLogin(driverImgPath)
+                                print(loginResult)
+
+                                if loginResult[0] == userIDnum:
+                                    print("111111")
+                                    ecdtcp = EcdLoginResult(1)
+                                    print("222222")
+                                    loginSuccess = 0
+                                    print("333333")
+                                    
 
                             if loginSuccess != 0:
                                 print("등록된 얼굴이 아닙니다.")
@@ -129,6 +138,7 @@ def receiveTCP(sock : socket.socket):
                                 cv2.imwrite(driverImgPath,driverImg)
                                 userID.append((f"{userNum}",'.jpg'))
                                 DB.UserInfoInsert(driverImgPath)
+                                print("사용자 신규등록 완료")
                                 ecdtcp = EcdLoginResult(2)
                     
 

@@ -59,12 +59,12 @@ class DB:
 
 
     # test select 
-    def UserLogin(self, id):
+    def UserLogin(self, imgPath):
         conn = self.Connect()
         curs = conn.cursor()
-        sql = f"""select imagesrc
+        sql = f"""select UserNumber
                     from drive.User
-                    WHERE imagesrc = '{id}';"""
+                    WHERE imagesrc = '{imgPath}';"""
                     #where imagesrc like '%1%'
         curs.execute(sql)
         rowlist = []
