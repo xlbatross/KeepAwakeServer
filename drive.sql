@@ -53,7 +53,7 @@ CREATE TABLE `user` (
   `UserNumber` int NOT NULL AUTO_INCREMENT,
   `ImageSrc` varchar(45) NOT NULL,
   PRIMARY KEY (`UserNumber`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -62,7 +62,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'./pictures/1.jpg'),(2,'./pictures/2.jpg'),(3,'./pictures/3.jpg'),(4,'./pictures/4.jpg');
+INSERT INTO `user` VALUES (1,'./pictures/1.jpg'),(2,'./pictures/2.jpg'),(3,'./pictures/3.jpg'),(4,'./pictures/4.jpg'),(5,'./pictures/5.jpg');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -75,4 +75,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-09 12:21:12
+-- Dump completed on 2023-01-10 20:39:52
