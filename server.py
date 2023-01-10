@@ -8,10 +8,9 @@ import random
 import face_recognition
 import numpy as np
 import os
-from DBclass import DB
+from DBclass import Database
 #가히
-import DBclass
-DB = DBclass.DB()
+DB = Database()
 
 #등록된 사용자의 사진을 불러오고 encoding하는 부분
 path = 'pictures'
@@ -112,9 +111,9 @@ def receiveTCP(sock : socket.socket):
                             matchIndex = np.argmin(faces_faceDis)
 
                             #로그인 결과 출력
-                            loginSuccess = 1
+                            # loginSuccess = 1
 
-                            if faces_match[matchIndex] and faces_faceDis[matchIndex] <= 0.45:
+                            if faces_match[matchIndex] and faces_faceDis[matchIndex] <= 0.4:
                                 print("얼굴추측 성공")
                                 userIDnum = userID[matchIndex][0]
                                 driverImgPath = f"./pictures/{userIDnum}.jpg"

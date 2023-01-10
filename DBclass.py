@@ -1,7 +1,7 @@
 from unittest import result
 import pymysql
 
-class DB:
+class Database:
     def __init__(self):
         self.host = '127.0.0.1'
         self.port = 3306
@@ -87,13 +87,17 @@ class DB:
                   where usernumber = {usernum}
                   group by drowsycount;"""
         curs.execute(sql)
-        rowlist = []
-        for row in curs:
-            for el in row:
-                rowlist.append(el)
+        result = curs.fetchone()
+        DrowsyResult = -1
+        if not DrowsyResult is None:
+            DrowsyResult = result
+        # rowlist = []
+        # for row in curs:
+        #     for el in row:
+        #         rowlist.append(el)
         conn.commit()
         conn.close()
-        return rowlist
+        return DrowsyResult
 
 
     # DB select 메서드
