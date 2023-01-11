@@ -42,11 +42,12 @@ class EcdLoginResult(EncodeTCP):
         self.packaging(EncodeType.LoginResult.value)
 
 class EcdDrivingResult(EncodeTCP):
-    def __init__(self, img : np.ndarray):
+    def __init__(self, img : np.ndarray, text : str):
         super().__init__()
         self.dataBytesList.append(img.shape[0].to_bytes(4, "little"))
         self.dataBytesList.append(img.shape[1].to_bytes(4, "little"))
         self.dataBytesList.append(img.tobytes())
+        self.dataBytesList.append(text.encode())
         self.packaging(EncodeType.DrivingResult.value)
 
 

@@ -35,6 +35,7 @@ class DcdImage:
         self.rows : int = int.from_bytes(dcdtcp.dataBytesList[0], "little")
         self.cols : int = int.from_bytes(dcdtcp.dataBytesList[1], "little")
         self.image : np.ndarray = np.ndarray(shape=(self.rows, self.cols, 3), buffer=dcdtcp.dataBytesList[2], dtype=np.uint8)
+        self.time : str = dcdtcp.dataBytesList[3].decode()
 
 class DcdLogin(DcdImage):
     def __init__(self, dcdtcp : DecodeTCP):

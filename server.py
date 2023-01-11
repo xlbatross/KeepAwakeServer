@@ -9,18 +9,28 @@ import face_recognition
 import numpy as np
 import os
 from DBclass import Database
-#가히
+#가히 import 및 객체 생성
+import predictAngle
+import predictEye
+
 DB = Database()
+
+#가히 변수 생성
+userID = -1
+closeCount = 0
+alert_text = ""
+alert_count = 0
+totalDrowsyCount = 0
 
 #등록된 사용자의 사진을 불러오고 encoding하는 부분
 path = 'pictures'
 images = [] #시각화된 이미지가 담긴다 _[[83,105,130],[96,113,132]]이런식으로!
-userID = [] #[('iu','.jpg')] 이렇게 담김
+userImgList = [] #[('iu','.jpg')] 이렇게 담김
 mylist = os.listdir(path) #폴더 내 이미지 목록을 들고 옴
 for cls in mylist:
     currentImg = cv2.imread(f'{path}/{cls}')
     images.append(currentImg)
-    userID.append(os.path.splitext(cls))
+    userImgList.append(os.path.splitext(cls))
 
 imgsEncodeList = [] #사용자 얼굴 인코딩한 값 담아놓는 리스트 
 
@@ -31,7 +41,7 @@ for img in images:
 
 
 print("Encoding completes!")
-print(userID)
+print(userImgList)
 
 class ClientData:
     def __init__(self):
@@ -82,6 +92,7 @@ def receiveTCP(sock : socket.socket):
                     
                     #가히 _ 사용자의 페이스로그인을 시도하는 부분
                     driverImg = cv2.cvtColor(dcdtcp.image, cv2.COLOR_BGR2RGB)
+                    print(dcdtcp.time)
                     driverImgEncodeList = face_recognition.face_encodings(driverImg)
                     #이 프로그램에 등록된 사용자가 한 명도 없을 때
                     if len(imgsEncodeList) == 0: 
@@ -93,11 +104,12 @@ def receiveTCP(sock : socket.socket):
                             driverImgEncode = driverImgEncodeList[0]
                             print("새로운 사용자 등록")
                             imgsEncodeList.append(driverImgEncode)
-                            userNum = len(imgsEncodeList)
+                            FirstUser = len(imgsEncodeList)
+                            userID = FirstUser
                             driverImg = cv2.cvtColor(driverImg, cv2.COLOR_RGB2BGR)
-                            driverImgPath = f"./pictures/{userNum}.jpg"
+                            driverImgPath = f"./pictures/{FirstUser}.jpg"
                             cv2.imwrite(driverImgPath,driverImg)
-                            userID.append((f"{userNum}",'.jpg'))
+                            userImgList.append((f"{FirstUser}",'.jpg'))
                             DB.UserInfoInsert(driverImgPath)
                             ecdtcp = EcdLoginResult(2)
                     #프로그램에 등록된 사용자가 1명 이상일 때
@@ -115,14 +127,15 @@ def receiveTCP(sock : socket.socket):
 
                             if faces_match[matchIndex] and faces_faceDis[matchIndex] <= 0.4:
                                 print("얼굴추측 성공")
-                                userIDnum = userID[matchIndex][0]
+                                userIDnum = userImgList[matchIndex][0]
                                 driverImgPath = f"./pictures/{userIDnum}.jpg"
                                 loginResult = DB.UserLogin(driverImgPath)
                                 if loginResult != -1:
+                                    userID = loginResult
                                     ecdtcp = EcdLoginResult(1)
                                 else:
                                     ecdtcp = EcdLoginResult(0)
-                                print("운전자 id:",loginResult)
+                                print("운전자 id:",userID)
                                 
                             else:
                                 print("등록된 얼굴이 없습니다.")
@@ -131,7 +144,7 @@ def receiveTCP(sock : socket.socket):
                                 driverImg = cv2.cvtColor(driverImg, cv2.COLOR_RGB2BGR)
                                 driverImgPath = f"./pictures/{userNum}.jpg"
                                 cv2.imwrite(driverImgPath,driverImg)
-                                userID.append((f"{userNum}",'.jpg'))
+                                userImgList.append((f"{userNum}",'.jpg'))
                                 DB.UserInfoInsert(driverImgPath)
                                 print("사용자 신규등록 완료")
                                 ecdtcp = EcdLoginResult(2)
@@ -141,6 +154,8 @@ def receiveTCP(sock : socket.socket):
                     dcdtcp = DcdDrivingImage(dcdtcp)
 
                     image = cv2.cvtColor(dcdtcp.image, cv2.COLOR_BGR2RGB)
+                    drowsyTime = dcdtcp.time
+                    # print("img time : ", drowsyTime)
 
                     # To improve performance
                     image.flags.writeable = False
@@ -163,8 +178,31 @@ def receiveTCP(sock : socket.socket):
                             # D.get_default_face_mesh_tesselation_style()
                         )
 
+                        eyeData = predictEye.blinkRatio(image, face_landmarks.landmark, predictEye.LEFT_EYE, predictEye.RIGHT_EYE)
+                        predictEyeData = predictEye.model.predict([[eyeData]])[0]
+                        if predictEyeData == 'close':
+                            closeCount += 1
+                        else:
+                            closeCount = 0
+
+                    if closeCount >= 15 and closeCount % 10 > 1:
+                        alert_text = "Detect drowsy!"
+                        print(alert_text)
+
+                        #여기서부터 막힘
+                        # alert_count += 1
+                        
+                        # if alert_count >= 10 :
+                        #         totalDrowsyCount += 1
+                        #         DB.DrowsyTimeInsert(userID,totalDrowsyCount,drowsyTime)
+                        
+                    else:
+                        alert_text = ""
+
+                    
+                            
                     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-                    ecdtcp = EcdDrivingResult(image)
+                    ecdtcp = EcdDrivingResult(image, alert_text)
 
                 #
                 if not ecdtcp is None:
