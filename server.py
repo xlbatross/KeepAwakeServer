@@ -12,6 +12,7 @@ from DBclass import Database
 #가히 import 및 객체 생성
 import predictAngle
 import predictEye
+from datetime import datetime
 
 DB = Database()
 
@@ -19,8 +20,9 @@ DB = Database()
 userID = -1
 closeCount = 0
 alert_text = ""
-alert_count = 0
-totalDrowsyCount = 0
+drowsyCount = 0
+drivingTime = []
+#userState = True #눈을 뜨고 있으면 True, 눈을 감고 있으면 False
 
 #등록된 사용자의 사진을 불러오고 encoding하는 부분
 path = 'pictures'
@@ -39,6 +41,12 @@ for img in images:
     encode = face_recognition.face_encodings(img)[0] #사진의 모든 좌표값이 나타남
     imgsEncodeList.append(encode)
 
+#시간차구하기
+def drowsyInterval(drowsyCount):
+    pre_drowsyCount = drowsyCount -1
+    time_interval = datetime(drivingTime[drowsyCount]) - datetime(drivingTime[pre_drowsyCount])
+    print(time_interval)
+    return time_interval
 
 print("Encoding completes!")
 print(userImgList)
@@ -89,10 +97,13 @@ def receiveTCP(sock : socket.socket):
                 print(dcdtcp.type)
                 if dcdtcp.type == DecodeType.Login.value:
                     dcdtcp = DcdLogin(dcdtcp)
+                    drowsyCount = 0
                     
                     #가히 _ 사용자의 페이스로그인을 시도하는 부분
                     driverImg = cv2.cvtColor(dcdtcp.image, cv2.COLOR_BGR2RGB)
                     print(dcdtcp.time)
+                    drivingStartTime = dcdtcp.time
+                    drivingTime.append(drivingStartTime)
                     driverImgEncodeList = face_recognition.face_encodings(driverImg)
                     #이 프로그램에 등록된 사용자가 한 명도 없을 때
                     if len(imgsEncodeList) == 0: 
@@ -152,9 +163,10 @@ def receiveTCP(sock : socket.socket):
 
                 elif dcdtcp.type == DecodeType.DrivingImage.value:
                     dcdtcp = DcdDrivingImage(dcdtcp)
+                    #userState = True 
 
                     image = cv2.cvtColor(dcdtcp.image, cv2.COLOR_BGR2RGB)
-                    drowsyTime = dcdtcp.time
+                    nowTime = dcdtcp.time
                     # print("img time : ", drowsyTime)
 
                     # To improve performance
@@ -177,33 +189,36 @@ def receiveTCP(sock : socket.socket):
                             connection_drawing_spec=mp_drawing.DrawingSpec(color=(245,117,66), thickness=2)
                             # D.get_default_face_mesh_tesselation_style()
                         )
+                        
 
                         eyeData = predictEye.blinkRatio(image, face_landmarks.landmark, predictEye.LEFT_EYE, predictEye.RIGHT_EYE)
                         predictEyeData = predictEye.model.predict([[eyeData]])[0]
                         if predictEyeData == 'close':
                             closeCount += 1
+
                         else:
                             closeCount = 0
 
                     if closeCount >= 15 and closeCount % 10 > 1:
+                        drivingTime.append(nowTime)
+                        drowsyCount += 1
+                        time_interval = int(drowsyInterval(drowsyCount))
+                        DB.DrowsyTimeInsert(userID,drowsyCount,time_interval)
                         alert_text = "Detect drowsy!"
                         print(alert_text)
-
-                        #여기서부터 막힘
-                        # alert_count += 1
-                        
-                        # if alert_count >= 10 :
-                        #         totalDrowsyCount += 1
-                        #         DB.DrowsyTimeInsert(userID,totalDrowsyCount,drowsyTime)
                         
                     else:
                         alert_text = ""
 
                     
-                            
                     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
                     ecdtcp = EcdDrivingResult(image, alert_text)
-
+                
+                #가히
+                # elif dcdtcp.type == DecodeType.DrowsyCount.value:
+                #     dcdtcp = DcdDrowsyCount(dcdtcp)
+                #     drowsyTimes = dcdtcp.count
+                   
                 #
                 if not ecdtcp is None:
                     totalByte = bytearray()

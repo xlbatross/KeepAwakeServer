@@ -4,6 +4,7 @@ import numpy as np
 class DecodeType(Enum):
     Login = 0
     DrivingImage = 1
+    DrowsyCount = 2
 
 class Decode:
     def __init__(self):
@@ -44,6 +45,11 @@ class DcdLogin(DcdImage):
 class DcdDrivingImage(DcdImage):
     def __init__(self, dcdtcp : DecodeTCP):
         super().__init__(dcdtcp)
+
+class DcdDrowsyCount:
+    def __init__(self, dcdtcp : DecodeTCP):
+        self.count : int = int.from_bytes(dcdtcp.dataBytesList[0], "little")
+        
 
 # class DcdImage:
 #     def __init__(self, dcdtcp : DecodeTCP):
