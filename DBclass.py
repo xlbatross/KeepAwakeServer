@@ -6,7 +6,7 @@ class Database:
         self.host = '127.0.0.1'
         self.port = 3306
         self.user = "root"
-        self.password = "iotiotiot"
+        self.password = "1234"
         self.dbname = "drive"
         self.charset = "utf8"
     
@@ -26,7 +26,7 @@ class Database:
     def DrowsyTimeInsert(self, User ,Drowsy ,DTime):
         conn = self.Connect()
         curs = conn.cursor()
-        sql = f"""INSERT INTO drive.driving (UserNumber,DrowsyCount,DrowsyTime)
+        sql = f"""INSERT INTO drive.driving (UserNumber,DrowsyCount,DrowsyInterval)
                   VALUES ({User},{Drowsy},'{DTime}');"""
         curs.execute(sql)
         conn.commit()

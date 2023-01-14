@@ -40,6 +40,7 @@ for img in images:
 def drowsyInterval(startTime : str, endTime : str):
     time_interval = datetime.strptime(endTime, '%H:%M:%S') - datetime.strptime(startTime, '%H:%M:%S')
     print(time_interval)
+    print(type(time_interval))
     return time_interval
 
 print("Encoding completes!")
@@ -68,8 +69,10 @@ def receiveTCP(sock : socket.socket):
     userID = -1
     closeCount = 0
     alert_text = ""
-    # drowsyCount = 0
-    # drivingTime = []
+    drowsyCount = 0
+    drivingTime = []
+    eyesOpenTime = [] 
+    eyesCloseTime = []
 
     # 신용 변수 이동.
     # 저 위에서 변수를 선언해두면 모든 클라이언트가 같은 값을 공유하게 됩니다.
@@ -117,6 +120,7 @@ def receiveTCP(sock : socket.socket):
                     driverImg = cv2.cvtColor(dcdtcp.image, cv2.COLOR_BGR2RGB)
                     # 신용
                     startTime = dcdtcp.time
+                    print("시동 건 시간: ", startTime)
                     endTime = ""
                     # drivingStartTime = dcdtcp.time
                     # drivingTime.append(drivingStartTime)
@@ -195,6 +199,7 @@ def receiveTCP(sock : socket.socket):
                     if closeCount >= 15:
                         if prevDrowsyCount == currentDrowsyCount:
                             endTime = dcdtcp.time
+                            print("졸음이 시작되는 time: ", endTime)
                             currentDrowsyCount += 1
                             time_interval = drowsyInterval(startTime, endTime)
                             DB.DrowsyTimeInsert(userID, currentDrowsyCount, time_interval)
@@ -203,6 +208,7 @@ def receiveTCP(sock : socket.socket):
                     elif closeCount == 0 and prevDrowsyCount < currentDrowsyCount:
                         prevDrowsyCount = currentDrowsyCount
                         startTime = dcdtcp.time
+                        print("재시작 Time : ", startTime)
                     else :
                         alert_text = ""
 
