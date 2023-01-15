@@ -112,11 +112,12 @@ def receiveTCP(sock : socket.socket):
                     dcdtcp = DcdLogin(dcdtcp)
 
                     # 신용 _ 데이터 초기화
+                    drowsyAvg = []
+                    closeCount = 0
                     prevDrowsyCount = 0
                     currentDrowsyCount = 0
                     userID = -1
 
-                    drowsyAvg = []
 
                     #가히 _ 사용자의 페이스로그인을 시도하는 부분
                     driverImg = cv2.cvtColor(dcdtcp.image, cv2.COLOR_BGR2RGB)
