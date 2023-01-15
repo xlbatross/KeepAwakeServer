@@ -40,7 +40,7 @@ for img in images:
 def drowsyInterval(startTime : str, endTime : str):
     time_interval = datetime.strptime(endTime, '%H:%M:%S') - datetime.strptime(startTime, '%H:%M:%S')
     print(time_interval)
-    print(type(time_interval))
+    # print(type(time_interval))
     return time_interval
 
 print("Encoding completes!")
@@ -116,6 +116,8 @@ def receiveTCP(sock : socket.socket):
                     currentDrowsyCount = 0
                     userID = -1
 
+                    drowsyAvg = []
+
                     #가히 _ 사용자의 페이스로그인을 시도하는 부분
                     driverImg = cv2.cvtColor(dcdtcp.image, cv2.COLOR_BGR2RGB)
                     # 신용
@@ -127,7 +129,7 @@ def receiveTCP(sock : socket.socket):
                     driverImgEncodeList = face_recognition.face_encodings(driverImg)
                     
                     if len(driverImgEncodeList) == 0:
-                        ecdtcp = EcdLoginResult(0)
+                        ecdtcp = EcdLoginResult(0, drowsyAvg)
                     else:
                         matchIndex = -1
                         driverImgEncode = driverImgEncodeList[0]
@@ -145,9 +147,11 @@ def receiveTCP(sock : socket.socket):
                             loginResult = DB.UserLogin(driverImgPath)
                             if loginResult != -1:
                                 userID = loginResult
-                                ecdtcp = EcdLoginResult(1)
+                                drowsyAvg = DB.avgDrowsyTime(userID)
+                                print(drowsyAvg)
+                                ecdtcp = EcdLoginResult(1,drowsyAvg)
                             else:
-                                ecdtcp = EcdLoginResult(0)
+                                ecdtcp = EcdLoginResult(0,drowsyAvg)
                             print("운전자 id:",userID)
                         else:
                             print("등록된 얼굴이 없습니다.")
@@ -159,7 +163,7 @@ def receiveTCP(sock : socket.socket):
                             userImgList.append((f"{userNum}",'.jpg'))
                             DB.UserInfoInsert(driverImgPath)
                             print("사용자 신규등록 완료")
-                            ecdtcp = EcdLoginResult(2)
+                            ecdtcp = EcdLoginResult(2,drowsyAvg)
                     
 
                 elif dcdtcp.type == DecodeType.DrivingImage.value:

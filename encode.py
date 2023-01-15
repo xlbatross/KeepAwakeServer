@@ -1,5 +1,6 @@
 from enum import Enum
 import numpy as np
+from datetime import time
 
 class EncodeType(Enum):
     LoginResult = 0
@@ -36,9 +37,11 @@ class EncodeTCP(Encode):
         return (len(self.headerBytes) + len(self.dataBytes)).to_bytes(4, "little")
 
 class EcdLoginResult(EncodeTCP):
-    def __init__(self, type : int):
+    def __init__(self, type : int, drowsyAvg : list[str]):
         super().__init__()
         self.dataBytesList.append(type.to_bytes(4, "little"))
+        for avg in drowsyAvg:
+            self.dataBytesList.append(avg.encode())
         self.packaging(EncodeType.LoginResult.value)
 
 class EcdDrivingResult(EncodeTCP):

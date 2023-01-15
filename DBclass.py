@@ -1,5 +1,6 @@
 from unittest import result
 import pymysql
+import datetime 
 
 class Database:
     def __init__(self):
@@ -82,15 +83,17 @@ class Database:
     def avgDrowsyTime(self,usernum):
         conn = self.Connect()
         curs = conn.cursor()
-        sql = f"""select avg(drowsytime)
+        sql = f"""select SEC_TO_TIME(AVG(TIME_TO_SEC(DrowsyInterval)))
                   from drive.driving
                   where usernumber = {usernum}
-                  group by drowsycount;"""
+                  group by drowsycount
+                  ORDER BY drowsycount asc"""
+
         curs.execute(sql)
-        result = curs.fetchone()
-        DrowsyResult = -1
-        if not DrowsyResult is None:
-            DrowsyResult = result
+        DrowsyResult = []
+        for row in curs:
+            td : datetime.timedelta = row[0]
+            DrowsyResult.append(td.__str__())
         # rowlist = []
         # for row in curs:
         #     for el in row:
