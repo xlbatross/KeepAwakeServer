@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `drive` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `drive`;
 -- MySQL dump 10.13  Distrib 8.0.31, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: drive
@@ -28,9 +26,9 @@ CREATE TABLE `driving` (
   `DriveOrder` int NOT NULL AUTO_INCREMENT,
   `UserNumber` int NOT NULL,
   `DrowsyCount` int NOT NULL,
-  `DrowsyTime` varchar(45) NOT NULL,
+  `DrowsyInterval` time NOT NULL,
   PRIMARY KEY (`DriveOrder`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='	';
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='	';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -39,6 +37,7 @@ CREATE TABLE `driving` (
 
 LOCK TABLES `driving` WRITE;
 /*!40000 ALTER TABLE `driving` DISABLE KEYS */;
+INSERT INTO `driving` VALUES (1,5,1,'00:00:05'),(2,5,2,'00:00:06'),(3,5,1,'00:00:03'),(4,5,2,'00:00:06'),(5,5,1,'00:00:05'),(6,5,2,'00:00:03'),(7,5,1,'00:00:02'),(8,5,1,'00:00:04'),(9,5,2,'00:00:04'),(10,5,1,'00:00:02'),(11,5,2,'00:00:05'),(12,5,3,'00:00:03'),(13,5,1,'00:10:00');
 /*!40000 ALTER TABLE `driving` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -53,7 +52,7 @@ CREATE TABLE `user` (
   `UserNumber` int NOT NULL AUTO_INCREMENT,
   `ImageSrc` varchar(45) NOT NULL,
   PRIMARY KEY (`UserNumber`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -62,7 +61,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'./pictures/1.jpg'),(2,'./pictures/2.jpg'),(3,'./pictures/3.jpg'),(4,'./pictures/4.jpg'),(5,'./pictures/5.jpg');
+INSERT INTO `user` VALUES (1,'./pictures/1.jpg'),(2,'./pictures/2.jpg'),(3,'./pictures/3.jpg'),(4,'./pictures/4.jpg'),(5,'./pictures/5.jpg'),(6,'./pictures/6.jpg');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -75,4 +74,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-10 20:39:52
+-- Dump completed on 2023-01-15 15:16:20
